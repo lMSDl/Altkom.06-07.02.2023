@@ -109,6 +109,8 @@ foreach (var p in products)
             x.Entry.State = EntityState.Modified;
         else
             x.Entry.State = EntityState.Added;
+
+        x.Entry.Properties.Where(x => x.Metadata.ClrType == typeof(DateTime)).ToList().ForEach(x => x.IsModified = false);
     });
 
     Console.WriteLine("Product: " + context.Entry(p).State);
