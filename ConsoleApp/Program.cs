@@ -18,9 +18,13 @@ context.Database.EnsureCreated();
 //AutoDetectChanges działa w przypadku wywołania Entries, Local, SaveChanges
 //context.ChangeTracker.AutoDetectChangesEnabled = false;
 
+
+
 var order = new Order();
-var product = new Product() { Name = "Kapusta", Price = 15/*, Id = 1 */};
+var product = new Product() { Name = "Kapusta", Price = 15/*, Id = 1*/ };
 order.Products.Add(product);
+
+
 
 /*var order = context.CreateProxy<Order>();
 var product = context.CreateProxy<Product>(x => { x.Name = "Kapusta"; x.Price = 15;*//*, Id = 1 *//*});
@@ -35,6 +39,7 @@ Console.WriteLine("Order po dodanu produktu do kontekstu: " + context.Entry(orde
 Console.WriteLine("Product po dodanu produktu do kontekstu: " + context.Entry(product).State);*/
 
 context.Attach(order);
+
 
 Console.WriteLine("Order po dodanu orderu do kontekstu: " + context.Entry(order).State);
 Console.WriteLine("Product po dodanu orderu do kontekstu: " + context.Entry(product).State);
@@ -87,6 +92,34 @@ WriteDebugView(context);
 //Ręcznie uruchomienie wykrywania zmian
 //context.ChangeTracker.DetectChanges();
 //WriteDebugView(context);
+
+
+var products = new List<Product>()
+{
+    new Product() { Name = "P1", Order = new Order{ Id = 60, DateTime = DateTime.Now } },
+    new Product() { Name = "P2", Order = new Order{} }
+};
+
+foreach (var p in products)
+{
+
+    context.ChangeTracker.TrackGraph(p, x =>
+    {
+        if (x.Entry.IsKeySet)
+            x.Entry.State = EntityState.Modified;
+        else
+            x.Entry.State = EntityState.Added;
+    });
+
+    Console.WriteLine("Product: " + context.Entry(p).State);
+    Console.WriteLine("Product order: " + context.Entry(p.Order).State);
+}
+
+WriteDebugView(context);
+
+
+
+
 
 static void WriteDebugView(Context context)
 {
