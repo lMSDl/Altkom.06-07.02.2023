@@ -6,6 +6,8 @@ using Models;
 
 var contextOptions = new DbContextOptionsBuilder<Context>()
                         .UseSqlServer(@"Server=(local)\SQLEXPRESS;Database=EFCore;Integrated Security=true")
+                        //Włączenie śledzenia zmian na podstawie proxy - wymaga specjalnego tworzenia obiektów (context.CreateProxy) i virtualizacji właściwości encji
+                        //.UseChangeTrackingProxies()
                         .Options;
 
 var context = new Context(contextOptions);
@@ -19,6 +21,10 @@ context.Database.EnsureCreated();
 var order = new Order();
 var product = new Product() { Name = "Kapusta", Price = 15/*, Id = 1 */};
 order.Products.Add(product);
+
+/*var order = context.CreateProxy<Order>();
+var product = context.CreateProxy<Product>(x => { x.Name = "Kapusta"; x.Price = 15;*//*, Id = 1 *//*});
+order.Products.Add(product);*/
 
 Console.WriteLine("Order przed dodaniem do kontekstu: " + context.Entry(order).State);
 Console.WriteLine("Product przed dodaniem do kontekstu: " + context.Entry(product).State);
@@ -62,9 +68,10 @@ Console.WriteLine("Product po zmianie nazwy: " + context.Entry(product).State);
 for (int i = 0; i < 3; i++)
 {
     order = new Order() { DateTime = DateTime.Now.AddMinutes(-i * 64) };
-    order.Products = Enumerable.Range(1, new Random(i).Next(2, 10))
+    order.Products = new System.Collections.ObjectModel.ObservableCollection<Product>
+        (Enumerable.Range(1, new Random(i).Next(2, 10))
         .Select(x => new Product { Name = x.ToString(), Price = x * 0.32f })
-        .ToList();
+        .ToList());
 
     context.Add(order);
 }
@@ -78,9 +85,8 @@ order.Products.First().Name = "samochodzik";
 WriteDebugView(context);
 
 //Ręcznie uruchomienie wykrywania zmian
-context.ChangeTracker.DetectChanges();
-WriteDebugView(context);
-
+//context.ChangeTracker.DetectChanges();
+//WriteDebugView(context);
 
 static void WriteDebugView(Context context)
 {
