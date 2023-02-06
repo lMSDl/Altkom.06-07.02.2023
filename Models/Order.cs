@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace Models
 {
@@ -6,6 +7,8 @@ namespace Models
     {
         private DateTime dateTime;
 
+        //Odpowiednik IsConcurrencyToken z konfiguracji
+        //[ConcurrencyCheck]
         public DateTime DateTime
         {
             get => dateTime;
