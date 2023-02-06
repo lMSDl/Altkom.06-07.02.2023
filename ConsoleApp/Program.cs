@@ -10,63 +10,66 @@ var contextOptions = new DbContextOptionsBuilder<Context>()
                         //.UseChangeTrackingProxies()
                         .Options;
 
-
-var context = new Context(contextOptions);
-context.Database.EnsureDeleted();
-context.Database.Migrate();
-
-ChangeTracker(new Context(contextOptions));
-
-var order = context.Set<Order>().First();
-
-order.DateTime = DateTime.Now;
-context.SaveChanges();
-
-var product = context.Set<Product>().First();
-product.Price = 15;
-
-var saved = false;
-
-do
+using (var context = new Context(contextOptions))
 {
-    try
+    context.Database.EnsureDeleted();
+    context.Database.Migrate();
+}
+
+var products = Enumerable.Range(100, 50).Select(x => new Product { Name = $"Product {x}", Price = 1.23f * x }).ToList();
+var orders = Enumerable.Range(0, 5).Select(x => new Order() { DateTime = DateTime.Now.AddMinutes(-3.21 * x) }).ToList();
+
+using (var context = new Context(contextOptions))
+{
+    context.RandomFail = true;
+
+    using var transaction = context.Database.BeginTransaction();
+
+    for (int i = 0; i < 5; i++)
     {
-        context.SaveChanges();
-        saved = true;
-    }
-    catch (DbUpdateConcurrencyException ex)
-    {
-        foreach (var entry in ex.Entries)
+        string savepointName = i.ToString();
+        transaction.CreateSavepoint(savepointName);
+
+        try
         {
-            //wartosci jakie chcemy wprowadzić do bazy
-            var currentValues = entry.CurrentValues;
-            //wartości jakie pamięta context (jakie były pobrane z bazy)
-            var originalValues = entry.OriginalValues;
-            //wartości jakie są aktualnie w bazie danych
-            var databaseValues = entry.GetDatabaseValues();
+            var order = orders[i];
+            context.Add(order);
+            context.SaveChanges();
 
-            switch (entry.Entity)
+            var subProducts = products.Skip(i * 10).Take(10).ToList();
+
+            foreach (var product in subProducts)
             {
-                case Product:
-                    var property = currentValues.Properties.Single(x => x.Name == nameof(Product.Price));
-                    var currentValue = (float)currentValues[property];
-                    var originalValue = (float)originalValues[property];
-                    var databaseValue = (float)databaseValues[property];
+                product.Order = order;
 
-                    currentValues[property] = databaseValue + (currentValue - originalValue);
-                    break;
+                context.Attach(product);
+                context.SaveChanges();
             }
-
-            entry.OriginalValues.SetValues(databaseValues);
         }
-
+        catch
+        {
+            transaction.RollbackToSavepoint(savepointName);
+            context.ChangeTracker.Clear();
+        }
     }
-} while (!saved);
+
+    transaction.Commit();
+}
 
 
+using (var context = new Context(contextOptions))
+{
+    context.RandomFail = true;
+    using var transaction = context.Database.BeginTransaction();
+    var product = context.Set<Product>().First();
+
+    product.Name = "X";
+    context.SaveChanges();
+    transaction.Commit();
+}
 
 
-static void ChangeTracker(Context context)
+    static void ChangeTracker(Context context)
 {
     //wyłączenie automatycznego wykrywania zmian
     //AutoDetectChanges działa w przypadku wywołania Entries, Local, SaveChanges
@@ -184,5 +187,64 @@ static void ChangeTracker(Context context)
         Console.WriteLine("-----");
         Console.WriteLine(context.ChangeTracker.DebugView.LongView);
         Console.WriteLine("-----");
+    }
+}
+
+static void ConcurrencyToken(DbContextOptions<Context> contextOptions)
+{
+    using (var context = new Context(contextOptions))
+    {
+        ChangeTracker(context);
+    }
+
+    using (var context = new Context(contextOptions))
+    {
+
+        var order = context.Set<Order>().First();
+
+        order.DateTime = DateTime.Now;
+        context.SaveChanges();
+
+        var product = context.Set<Product>().First();
+        product.Price = 15;
+
+        var saved = false;
+
+        do
+        {
+            try
+            {
+                context.SaveChanges();
+                saved = true;
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                foreach (var entry in ex.Entries)
+                {
+                    //wartosci jakie chcemy wprowadzić do bazy
+                    var currentValues = entry.CurrentValues;
+                    //wartości jakie pamięta context (jakie były pobrane z bazy)
+                    var originalValues = entry.OriginalValues;
+                    //wartości jakie są aktualnie w bazie danych
+                    var databaseValues = entry.GetDatabaseValues();
+
+                    switch (entry.Entity)
+                    {
+                        case Product:
+                            var property = currentValues.Properties.Single(x => x.Name == nameof(Product.Price));
+                            var currentValue = (float)currentValues[property];
+                            var originalValue = (float)originalValues[property];
+                            var databaseValue = (float)databaseValues[property];
+
+                            currentValues[property] = databaseValue + (currentValue - originalValue);
+                            break;
+                    }
+
+                    entry.OriginalValues.SetValues(databaseValues);
+                }
+
+            }
+        } while (!saved);
+
     }
 }
