@@ -1,6 +1,7 @@
 ﻿using DAL.Configurations;
 using Microsoft.EntityFrameworkCore;
 using Models;
+using Pluralize.NET.Core;
 
 namespace DAL
 {
@@ -32,6 +33,41 @@ namespace DAL
 
             //włączenie śledzenia zmian na podstawie notyfikacji (wymaga implementacji INotifyPropertyChanged i/lub INotifyPropertyChanging) oraz wykorzystanie obserwowalnych kolekcji
             //modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications);
+
+            modelBuilder.Model.GetEntityTypes()
+                .SelectMany(x => x.GetProperties())
+                .Where(x => x.Name.EndsWith("PK"))
+                .ToList()
+                .ForEach(x => {
+                    x.IsNullable = false;
+                    x.DeclaringEntityType.SetPrimaryKey(x);
+                });
+
+            modelBuilder.Model.GetEntityTypes()
+                .ToList()
+                .ForEach(x =>
+                {
+                    x.SetTableName(new Pluralizer().Pluralize(x.GetDefaultTableName()));
+
+                    /*var tableName = x.GetDefaultTableName();
+
+                    if (tableName.EndsWith("y"))
+                        tableName = tableName.Substring(0, tableName.Length - 1) + "ies";
+                    else
+                        tableName += "s";
+
+                    x.SetTableName(tableName);*/
+
+                });
+
+            modelBuilder.Model.GetEntityTypes()
+                .SelectMany(x => x.GetProperties())
+                .Where(x => x.PropertyInfo?.PropertyType == typeof(string))
+                .ToList()
+                .ForEach(x => {
+                    x.IsNullable = true;
+                    x.SetColumnName("s_" + x.GetColumnBaseName());
+                });
         }
 
 
