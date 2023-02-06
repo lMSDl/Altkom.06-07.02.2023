@@ -21,37 +21,29 @@ using (var context = new Context(contextOptions))
     context.Database.Migrate();
 }
 
+
 Transactions(contextOptions, false);
 
 using (var context = new Context(contextOptions))
 {
-    var product = context.Set<Product>().First();
 
-    product.IsDeleted = true;
 
-    context.SaveChanges();
+    var orders = Context.GetOrdersByDateRange(context, DateTime.Now.AddDays(-1), DateTime.Now);
 
 }
-
-
 using (var context = new Context(contextOptions))
 {
-    var product = context.Set<Product>()/*.Where(x => !x.IsDeleted)*/.First();
-}
 
-using (var context = new Context(contextOptions))
-{
-    var order = context.Set<Order>().Include(x => x.Products/*.Where(x => !x.IsDeleted)*/).First();
-}
 
-using (var context = new Context(contextOptions))
-{
-    context.Set<Product>().Load();
-    var products = context.Set<Product>().Local.ToList();
+    var orders = Context.GetOrdersByDateRange(context, DateTime.Now.AddDays(-1), DateTime.Now);
+
 }
 
 
-    static void ChangeTracker(Context context)
+
+
+
+static void ChangeTracker(Context context)
 {
     //wyłączenie automatycznego wykrywania zmian
     //AutoDetectChanges działa w przypadku wywołania Entries, Local, SaveChanges
@@ -317,5 +309,37 @@ static void Loading(DbContextOptions<Context> contextOptions)
         p = context.Set<Product>().First();
         //Lazy loading
         Console.WriteLine(p.Order.DateTime);
+    }
+}
+
+static void QueryFilter(DbContextOptions<Context> contextOptions)
+{
+    Transactions(contextOptions, false);
+
+    using (var context = new Context(contextOptions))
+    {
+        var product = context.Set<Product>().First();
+
+        product.IsDeleted = true;
+
+        context.SaveChanges();
+
+    }
+
+
+    using (var context = new Context(contextOptions))
+    {
+        var product = context.Set<Product>()/*.Where(x => !x.IsDeleted)*/.First();
+    }
+
+    using (var context = new Context(contextOptions))
+    {
+        var order = context.Set<Order>().Include(x => x.Products/*.Where(x => !x.IsDeleted)*/).First();
+    }
+
+    using (var context = new Context(contextOptions))
+    {
+        context.Set<Product>().Load();
+        var products = context.Set<Product>().Local.ToList();
     }
 }

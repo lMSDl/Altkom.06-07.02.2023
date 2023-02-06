@@ -7,6 +7,15 @@ namespace DAL
 {
     public class Context : DbContext
     {
+        public static Func<Context, DateTime, DateTime, IEnumerable<Order>> GetOrdersByDateRange { get; } =
+            EF.CompileQuery((Context context, DateTime from, DateTime to) =>
+                context.Set<Order>()
+            .AsNoTracking()
+            .Include(x => x.Products)
+            .Where(x => x.DateTime >= from)
+            .Where(x => x.DateTime <= to));
+
+
         public Context() { }
         public Context(DbContextOptions options) : base(options)
         { }
