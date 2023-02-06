@@ -11,7 +11,7 @@ var contextOptions = new DbContextOptionsBuilder<Context>()
                         //Włączenie śledzenia zmian na podstawie proxy - wymaga specjalnego tworzenia obiektów (context.CreateProxy) i virtualizacji właściwości encji
                         //.UseChangeTrackingProxies()
                         //Włączenie opóźnionego ładowania - wymaga wirtualizacji właściwości referencji
-                        //.UseLazyLoadingProxies()
+                        .UseLazyLoadingProxies()
                         .LogTo(x => Console.WriteLine(x))
                         .Options;
 
@@ -25,37 +25,33 @@ Transactions(contextOptions, false);
 
 using (var context = new Context(contextOptions))
 {
-    //Eager loading
-    var product = context.Set<Product>().Include(x => x.Order).ThenInclude(x => x.Products).First();
+    var product = context.Set<Product>().First();
+
+    product.IsDeleted = true;
+
+    context.SaveChanges();
+
+}
+
+
+using (var context = new Context(contextOptions))
+{
+    var product = context.Set<Product>()/*.Where(x => !x.IsDeleted)*/.First();
 }
 
 using (var context = new Context(contextOptions))
 {
-    var product = context.Set<Product>().First();
-    //Explicit loading
-    context.Entry(product).Reference(x => x.Order).Load();
-    context.Entry(product.Order).Collection(x => x.Products).Load();
+    var order = context.Set<Order>().Include(x => x.Products/*.Where(x => !x.IsDeleted)*/).First();
 }
 
 using (var context = new Context(contextOptions))
 {
     context.Set<Product>().Load();
-    context.Set<Order>().Load();
-
-    var product = context.Set<Product>().Local.First();
-}
-
-Product p = null;
-using (var context = new Context(contextOptions))
-{
-    p = context.Set<Product>().First();
-    //Lazy loading
-    Console.WriteLine(p.Order.DateTime);
+    var products = context.Set<Product>().Local.ToList();
 }
 
 
-
-static void ChangeTracker(Context context)
+    static void ChangeTracker(Context context)
 {
     //wyłączenie automatycznego wykrywania zmian
     //AutoDetectChanges działa w przypadku wywołania Entries, Local, SaveChanges
@@ -286,5 +282,40 @@ static void Transactions(DbContextOptions<Context> contextOptions, bool randomFa
         product.Name = "X";
         context.SaveChanges();
         transaction.Commit();
+    }
+}
+
+static void Loading(DbContextOptions<Context> contextOptions)
+{
+    Transactions(contextOptions, false);
+
+    using (var context = new Context(contextOptions))
+    {
+        //Eager loading
+        var product = context.Set<Product>().Include(x => x.Order).ThenInclude(x => x.Products).First();
+    }
+
+    using (var context = new Context(contextOptions))
+    {
+        var product = context.Set<Product>().First();
+        //Explicit loading
+        context.Entry(product).Reference(x => x.Order).Load();
+        context.Entry(product.Order).Collection(x => x.Products).Load();
+    }
+
+    using (var context = new Context(contextOptions))
+    {
+        context.Set<Product>().Load();
+        context.Set<Order>().Load();
+
+        var product = context.Set<Product>().Local.First();
+    }
+
+    Product p = null;
+    using (var context = new Context(contextOptions))
+    {
+        p = context.Set<Product>().First();
+        //Lazy loading
+        Console.WriteLine(p.Order.DateTime);
     }
 }

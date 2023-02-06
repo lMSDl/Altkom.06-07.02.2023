@@ -29,7 +29,7 @@ namespace Models
             }
         }
         public float Price { get; set; }
-        public Order? Order { get => _lazyLoader?.Load(this, ref order) ?? order; set => order = value; }
+        public virtual Order? Order { get => _lazyLoader?.Load(this, ref order) ?? order; set => order = value; }
 
         //Odpowiednik IsRowVersion z konfiguracji
         //[Timestamp]
