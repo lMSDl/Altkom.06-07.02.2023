@@ -23,6 +23,8 @@ namespace DAL.Configurations
                                                         x => Enum.Parse<OrderType>(x));*/
                                         //.HasConversion<string>();
                                         .HasConversion(new EnumToStringConverter<OrderType>());
+
+            builder.Property(x => x.Name).IsSparse();
         }                       
     }
 }
