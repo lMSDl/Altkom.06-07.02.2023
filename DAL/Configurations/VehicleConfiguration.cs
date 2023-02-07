@@ -13,6 +13,12 @@ namespace DAL.Configurations
     {
         public void Configure(EntityTypeBuilder<Vehicle> builder)
         {
+            builder.ToTable("Vehicles", x => x.IsTemporal(xx =>
+            {
+                xx.HasPeriodStart("Start");
+                xx.HasPeriodEnd("End");
+            }));
+
         }
     }
 }

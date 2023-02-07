@@ -22,67 +22,46 @@ using (var context = new Context(contextOptions))
     context.Database.Migrate();
 }
 
-for (int i = 0; i < 20; i++)
-{
-
-    using (var context = new Context(contextOptions))
-    {
-
-    var order = new Order() { Type = (OrderType)(i%3)};
-        order.DeliveryPoint = new Point(52 - i, 21 + i) { SRID = 4326 };
-
-    var product = new Product() { Name = "Kapusta " + i, Details = new ProductDetails { Height = i, Weight = 10 * 1, Width = 12 +i } };
-    order.Products.Add(product);
-    context.Add(order);
-    context.SaveChanges();
-    }
-}
 
 using (var context = new Context(contextOptions))
 {
-    //odczyt wartości ShadowProperty
-    var product = context.Set<Product>().Include(x => x.Details).Where(x => EF.Property<int>(x, "OrderId") == 2).First();
-    //zapis wartości ShadowProperty
-    context.Entry(product).Property("OrderId").CurrentValue = 3;
-
-    product.Name = "Sałata";
+    var vehicle = new Vehicle() { Name = "Auto 1" };
+    context.Add(vehicle);
     context.SaveChanges();
-    //Procedures(context);
 
-    var orderSummaries = context.Set<OrderSummary>().ToList();
+    Thread.Sleep(5000);
 
-
-
-    var order = product.Order;
-    var point = new Point(52, 21) { SRID = 4326 };
-
-    var distance = point.Distance(order.DeliveryPoint);
-    var intersect = point.Intersects(order.DeliveryPoint);
-
-    var polygon = new Polygon(new LinearRing(new Coordinate[] { new Coordinate(52, 21),
-                                                                new Coordinate(51, 20),
-                                                                new Coordinate(52, 19),
-                                                                new Coordinate(53, 20),
-                                                                new Coordinate(52, 21)}))
-    { SRID = 4326 };
+    vehicle.Name = "Auto";
+    context.SaveChanges();
 
 
-     intersect = polygon.Intersects(order.DeliveryPoint);
+
+    Thread.Sleep(5000);
+
+    vehicle.Name = "";
+    context.SaveChanges();
 
 
-    var orders = context.Set<Order>().Where(x => x.DeliveryPoint.Intersects(polygon)).ToList();
-    orders = context.Set<Order>().OrderBy(x => x.DeliveryPoint.Distance(point)).ToList();
-    orders = context.Set<Order>().Where(x => point.IsWithinDistance(x.DeliveryPoint, 2000000)).ToList();
+    Thread.Sleep(5000);
+
+    context.Remove(vehicle);
+    context.SaveChanges();
 }
 
 
+using (var context = new Context(contextOptions))
+{
+    var vehicles = context.Set<Vehicle>().ToList();
+
+    vehicles = context.Set<Vehicle>().TemporalAsOf(DateTime.UtcNow.AddSeconds(-11)).ToList();
+
+    vehicles = context.Set<Vehicle>().TemporalAsOf(DateTime.UtcNow.AddSeconds(-6)).ToList();
+
+    var vs = context.Set<Vehicle>().TemporalAll().Select(x => new {x, FROM =  EF.Property<DateTime>(x, "Start"), TO = EF.Property<DateTime>(x, "End") }).ToList();
+}
 
 
-
-
-
-
-static void ChangeTracker(Context context)
+    static void ChangeTracker(Context context)
 {
     //wyłączenie automatycznego wykrywania zmian
     //AutoDetectChanges działa w przypadku wywołania Entries, Local, SaveChanges
@@ -414,4 +393,60 @@ static void Procedures(Context context)
 
 
     var result = context.Set<OrderSummary>().FromSqlRaw("EXEC OrderSummary @p0", 3);
+}
+
+static void Others(DbContextOptions<Context> contextOptions)
+{
+    for (int i = 0; i < 20; i++)
+    {
+
+        using (var context = new Context(contextOptions))
+        {
+
+            var order = new Order() { Type = (OrderType)(i % 3) };
+            order.DeliveryPoint = new Point(52 - i, 21 + i) { SRID = 4326 };
+
+            var product = new Product() { Name = "Kapusta " + i, Details = new ProductDetails { Height = i, Weight = 10 * 1, Width = 12 + i } };
+            order.Products.Add(product);
+            context.Add(order);
+            context.SaveChanges();
+        }
+    }
+
+    using (var context = new Context(contextOptions))
+    {
+        //odczyt wartości ShadowProperty
+        var product = context.Set<Product>().Include(x => x.Details).Where(x => EF.Property<int>(x, "OrderId") == 2).First();
+        //zapis wartości ShadowProperty
+        context.Entry(product).Property("OrderId").CurrentValue = 3;
+
+        product.Name = "Sałata";
+        context.SaveChanges();
+        //Procedures(context);
+
+        var orderSummaries = context.Set<OrderSummary>().ToList();
+
+
+
+        var order = product.Order;
+        var point = new Point(52, 21) { SRID = 4326 };
+
+        var distance = point.Distance(order.DeliveryPoint);
+        var intersect = point.Intersects(order.DeliveryPoint);
+
+        var polygon = new Polygon(new LinearRing(new Coordinate[] { new Coordinate(52, 21),
+                                                                new Coordinate(51, 20),
+                                                                new Coordinate(52, 19),
+                                                                new Coordinate(53, 20),
+                                                                new Coordinate(52, 21)}))
+        { SRID = 4326 };
+
+
+        intersect = polygon.Intersects(order.DeliveryPoint);
+
+
+        var orders = context.Set<Order>().Where(x => x.DeliveryPoint.Intersects(polygon)).ToList();
+        orders = context.Set<Order>().OrderBy(x => x.DeliveryPoint.Distance(point)).ToList();
+        orders = context.Set<Order>().Where(x => point.IsWithinDistance(x.DeliveryPoint, 2000000)).ToList();
+    }
 }
