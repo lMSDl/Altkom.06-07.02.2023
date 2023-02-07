@@ -34,5 +34,7 @@ namespace Models
         //Odpowiednik IsRowVersion z konfiguracji
         //[Timestamp]
         public byte[] Timestamp { get; set; }
+
+        public string Description { get; }
     }
 }

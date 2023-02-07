@@ -20,6 +20,8 @@ namespace DAL.Configurations
             builder.Property(x => x.Timestamp).IsRowVersion();
 
             builder.Property(x => x.Price).HasDefaultValue(99.9);
+
+            builder.Property(x => x.Description).HasComputedColumnSql("[s_Name] + ' ' + STR([Price]) + 'zł'", stored: true);
         }
     }
 }
