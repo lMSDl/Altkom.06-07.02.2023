@@ -22,6 +22,10 @@ namespace DAL.Configurations
             builder.Property(x => x.Price).HasDefaultValue(99.9);
 
             builder.Property(x => x.Description).HasComputedColumnSql("[s_Name] + ' ' + STR([Price]) + 'zł'", stored: true);
+
+            //wskazanie nietypowej nazwy backfielda dla property
+            //typowe nazwy: <nazwa>, _<nazwa>, m_<nazwa>
+            builder.Property(x => x.Name).HasField("n_name");
         }
     }
 }

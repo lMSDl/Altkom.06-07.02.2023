@@ -16,15 +16,15 @@ namespace Models
             _lazyLoader = lazyLoader;
         }
 
-        private string name = string.Empty;
+        private string n_name = string.Empty;
         private Order? order;
 
         public string Name
         {
-            get => name;
+            get => n_name;
             set
             {
-                name = value;
+                n_name = value;
                 OnPropertyChanged();
             }
         }

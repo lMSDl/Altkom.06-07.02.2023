@@ -43,7 +43,7 @@ namespace DAL.Migrations
 
                     b.HasKey("PK");
 
-                    b.ToTable("Animals");
+                    b.ToTable("Animals", (string)null);
                 });
 
             modelBuilder.Entity("Models.Order", b =>
@@ -80,7 +80,7 @@ namespace DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Orders", (string)null);
                 });
 
             modelBuilder.Entity("Models.Product", b =>
@@ -130,7 +130,7 @@ namespace DAL.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("Models.Vehicle", b =>
@@ -147,7 +147,7 @@ namespace DAL.Migrations
 
                     b.HasKey("MyPK");
 
-                    b.ToTable("Vehicles");
+                    b.ToTable("Vehicles", (string)null);
                 });
 
             modelBuilder.Entity("Models.Product", b =>

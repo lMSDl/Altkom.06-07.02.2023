@@ -88,6 +88,9 @@ namespace DAL
                         .HasMin(0)
                         .IncrementsBy(333)
                         .IsCyclic();
+
+            //ustawienie sposobu dostępu do właściwości encji
+            modelBuilder.UsePropertyAccessMode(PropertyAccessMode.Field);
         }
 
 
