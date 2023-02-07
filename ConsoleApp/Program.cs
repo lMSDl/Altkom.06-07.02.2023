@@ -21,26 +21,22 @@ using (var context = new Context(contextOptions))
     context.Database.Migrate();
 }
 
-
-Transactions(contextOptions, false);
-
 using (var context = new Context(contextOptions))
 {
 
-
-    var orders = Context.GetOrdersByDateRange(context, DateTime.Now.AddDays(-1), DateTime.Now);
-
+    var order = new Order();
+    var product = new Product() { Name = "Kapusta" };
+    order.Products.Add(product);
+    context.Add(order);
+    context.SaveChanges();
 }
+
 using (var context = new Context(contextOptions))
 {
-
-
-    var orders = Context.GetOrdersByDateRange(context, DateTime.Now.AddDays(-1), DateTime.Now);
-
+    var product = context.Set<Product>().First();
+    product.Name = "Sałata";
+    context.SaveChanges();
 }
-
-
-
 
 
 static void ChangeTracker(Context context)
@@ -341,5 +337,25 @@ static void QueryFilter(DbContextOptions<Context> contextOptions)
     {
         context.Set<Product>().Load();
         var products = context.Set<Product>().Local.ToList();
+    }
+}
+
+static void CompiledQuery(DbContextOptions<Context> contextOptions)
+{
+    Transactions(contextOptions, false);
+
+    using (var context = new Context(contextOptions))
+    {
+
+
+        var orders = Context.GetOrdersByDateRange(context, DateTime.Now.AddDays(-1), DateTime.Now);
+
+    }
+    using (var context = new Context(contextOptions))
+    {
+
+
+        var orders = Context.GetOrdersByDateRange(context, DateTime.Now.AddDays(-1), DateTime.Now);
+
     }
 }

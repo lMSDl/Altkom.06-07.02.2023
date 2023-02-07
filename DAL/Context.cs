@@ -84,6 +84,12 @@ namespace DAL
 
         public override int SaveChanges()
         {
+            ChangeTracker.Entries<IModifiedDate>()
+                .Where(x => x.State == EntityState.Modified)
+                .Select(x => x.Entity)
+                .ToList()
+                .ForEach(x => x.ModifiedDate = DateTime.Now);
+
             if(RandomFail && new Random().Next(1, 25) == 1)
             {
                 throw new Exception();
