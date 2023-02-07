@@ -39,5 +39,7 @@ namespace Models
         public byte[] Timestamp { get; set; }
 
         public string Description { get; }
+
+        public virtual ProductDetails? Details { get; set; }
     }
 }

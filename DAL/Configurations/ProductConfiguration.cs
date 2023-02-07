@@ -26,6 +26,9 @@ namespace DAL.Configurations
             //wskazanie nietypowej nazwy backfielda dla property
             //typowe nazwy: <nazwa>, _<nazwa>, m_<nazwa>
             builder.Property(x => x.Name).HasField("n_name");
+
+
+            builder.HasOne(x => x.Details).WithOne().HasForeignKey<ProductDetails>(x => x.Id);
         }
     }
 }

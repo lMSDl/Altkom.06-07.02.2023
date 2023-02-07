@@ -28,7 +28,7 @@ for (int i = 0; i < 20; i++)
     {
 
     var order = new Order() { Type = (OrderType)(i%3)};
-    var product = new Product() { Name = "Kapusta " + i };
+    var product = new Product() { Name = "Kapusta " + i, Details = new ProductDetails { Height = i, Weight = 10 * 1, Width = 12 +i } };
     order.Products.Add(product);
     context.Add(order);
     context.SaveChanges();
@@ -38,7 +38,7 @@ for (int i = 0; i < 20; i++)
 using (var context = new Context(contextOptions))
 {
     //odczyt wartości ShadowProperty
-    var product = context.Set<Product>().Where(x => EF.Property<int>(x, "OrderId") == 2).First();
+    var product = context.Set<Product>().Include(x => x.Details).Where(x => EF.Property<int>(x, "OrderId") == 2).First();
     //zapis wartości ShadowProperty
     context.Entry(product).Property("OrderId").CurrentValue = 3;
 

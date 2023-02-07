@@ -57,7 +57,8 @@ namespace DAL
                 .ToList()
                 .ForEach(x =>
                 {
-                    x.SetTableName(new Pluralizer().Pluralize(x.GetDefaultTableName()));
+                    if(x.GetTableName() == x.GetDefaultTableName())
+                        x.SetTableName(new Pluralizer().Pluralize(x.GetDefaultTableName()));
 
                     /*var tableName = x.GetDefaultTableName();
 
