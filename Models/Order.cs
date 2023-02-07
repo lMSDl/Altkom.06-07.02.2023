@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using NetTopologySuite.Geometries;
+using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace Models
@@ -19,10 +20,12 @@ namespace Models
             }
         }
 
-        public int Number { get;  }
+        public int Number { get; }
 
         public string? Name { get; set; }
         public OrderType Type { get; set; }
+
+        public Point? DeliveryPoint {get; set;}
 
         public virtual ObservableCollection<Product> Products { get; set; } = new ObservableCollection<Product>();
     }

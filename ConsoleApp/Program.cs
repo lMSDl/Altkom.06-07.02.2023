@@ -3,11 +3,12 @@
 using DAL;
 using Microsoft.EntityFrameworkCore;
 using Models;
+using NetTopologySuite.Geometries;
 using System.ComponentModel;
 using System.Threading;
 
 var contextOptions = new DbContextOptionsBuilder<Context>()
-                        .UseSqlServer(@"Server=(local)\SQLEXPRESS;Database=EFCore;Integrated Security=true")
+                        .UseSqlServer(@"Server=(local)\SQLEXPRESS;Database=EFCore;Integrated Security=true", x => x.UseNetTopologySuite())
                         //Włączenie śledzenia zmian na podstawie proxy - wymaga specjalnego tworzenia obiektów (context.CreateProxy) i virtualizacji właściwości encji
                         //.UseChangeTrackingProxies()
                         //Włączenie opóźnionego ładowania - wymaga wirtualizacji właściwości referencji
@@ -28,6 +29,8 @@ for (int i = 0; i < 20; i++)
     {
 
     var order = new Order() { Type = (OrderType)(i%3)};
+        order.DeliveryPoint = new Point(52 - i, 21 + i) { SRID = 4326 };
+
     var product = new Product() { Name = "Kapusta " + i, Details = new ProductDetails { Height = i, Weight = 10 * 1, Width = 12 +i } };
     order.Products.Add(product);
     context.Add(order);
@@ -49,6 +52,27 @@ using (var context = new Context(contextOptions))
     var orderSummaries = context.Set<OrderSummary>().ToList();
 
 
+
+    var order = product.Order;
+    var point = new Point(52, 21) { SRID = 4326 };
+
+    var distance = point.Distance(order.DeliveryPoint);
+    var intersect = point.Intersects(order.DeliveryPoint);
+
+    var polygon = new Polygon(new LinearRing(new Coordinate[] { new Coordinate(52, 21),
+                                                                new Coordinate(51, 20),
+                                                                new Coordinate(52, 19),
+                                                                new Coordinate(53, 20),
+                                                                new Coordinate(52, 21)}))
+    { SRID = 4326 };
+
+
+     intersect = polygon.Intersects(order.DeliveryPoint);
+
+
+    var orders = context.Set<Order>().Where(x => x.DeliveryPoint.Intersects(polygon)).ToList();
+    orders = context.Set<Order>().OrderBy(x => x.DeliveryPoint.Distance(point)).ToList();
+    orders = context.Set<Order>().Where(x => point.IsWithinDistance(x.DeliveryPoint, 2000000)).ToList();
 }
 
 
