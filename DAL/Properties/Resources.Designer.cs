@@ -61,6 +61,32 @@ namespace DAL.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to DROP TRIGGER modifiedDate.
+        /// </summary>
+        internal static string OrderModifiedDateTigger_DOWN {
+            get {
+                return ResourceManager.GetString("OrderModifiedDateTigger_DOWN", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CREATE TRIGGER modifiedDate
+        ///ON Orders
+        ///AFTER INSERT, UPDATE
+        ///AS
+        ///	UPDATE [Orders] SET ModifiedDate = (SELECT getdate())
+        ///	FROM [Orders] x
+        ///		INNER JOIN inserted y
+        ///		ON x.Id = y.Id
+        ///GO.
+        /// </summary>
+        internal static string OrderModifiedDateTigger_UP {
+            get {
+                return ResourceManager.GetString("OrderModifiedDateTigger_UP", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to DROP PROCEDURE OrderSummary.
         /// </summary>
         internal static string OrderSummary_DOWN {
@@ -103,7 +129,6 @@ namespace DAL.Properties {
         ///	SELECT o.Id, o.DateTime, COUNT(p.Id) AS Count
         ///	FROM [Orders] as o
         ///	JOIN Products as p ON o.Id = p.OrderId
-        ///	WHERE o.Id = @id
         ///	GROUP BY o.Id, o.[DateTime]	.
         /// </summary>
         internal static string OrderSummaryView_UP {
