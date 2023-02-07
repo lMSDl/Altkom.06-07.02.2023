@@ -13,9 +13,9 @@ namespace DAL.Configurations
     {
         public override void Configure(EntityTypeBuilder<Product> builder)
         {
-            base.Configure(builder);
+            base.Configure(builder);   
 
-            builder.HasOne(x => x.Order).WithMany(x => x.Products);
+            builder.HasOne(x => x.Order).WithMany(x => x.Products).IsRequired();
 
             builder.Property(x => x.Timestamp).IsRowVersion();
 
