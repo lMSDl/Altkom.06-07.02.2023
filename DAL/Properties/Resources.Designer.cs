@@ -70,7 +70,7 @@ namespace DAL.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to CREATE OR UPDATE PROCEDURE OrderSummary
+        ///   Looks up a localized string similar to CREATE OR ALTER PROCEDURE OrderSummary
         ///@id int
         ///AS
         ///BEGIN
@@ -86,6 +86,29 @@ namespace DAL.Properties {
         internal static string OrderSummary_UP {
             get {
                 return ResourceManager.GetString("OrderSummary_UP", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to DROP VIEW View_OrderSummary.
+        /// </summary>
+        internal static string OrderSummaryView_DOWN {
+            get {
+                return ResourceManager.GetString("OrderSummaryView_DOWN", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CREATE VIEW View_OrderSummary AS
+        ///	SELECT o.Id, o.DateTime, COUNT(p.Id) AS Count
+        ///	FROM [Orders] as o
+        ///	JOIN Products as p ON o.Id = p.OrderId
+        ///	WHERE o.Id = @id
+        ///	GROUP BY o.Id, o.[DateTime]	.
+        /// </summary>
+        internal static string OrderSummaryView_UP {
+            get {
+                return ResourceManager.GetString("OrderSummaryView_UP", resourceCulture);
             }
         }
     }

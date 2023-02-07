@@ -44,14 +44,11 @@ using (var context = new Context(contextOptions))
 
     product.Name = "Sałata";
     context.SaveChanges();
+    //Procedures(context);
 
-    //var multiplier = "-1.1; DROP TABLE Products";
-    var multiplier = "-1.1";
-    //context.Database.ExecuteSqlRaw("EXEC ChangePrice @p0", multiplier);
-    context.Database.ExecuteSqlInterpolated($"EXEC ChangePrice {multiplier}");
+    var orderSummaries = context.Set<OrderSummary>().ToList();
 
 
-    var result = context.Set<OrderSummary>().FromSqlRaw("EXEC OrderSummary @p0", 3);
 }
 
 
@@ -382,4 +379,15 @@ static void CompiledQuery(DbContextOptions<Context> contextOptions)
         var orders = Context.GetOrdersByDateRange(context, DateTime.Now.AddDays(-1), DateTime.Now);
 
     }
+}
+
+static void Procedures(Context context)
+{
+    //var multiplier = "-1.1; DROP TABLE Products";
+    var multiplier = "-1.1";
+    //context.Database.ExecuteSqlRaw("EXEC ChangePrice @p0", multiplier);
+    context.Database.ExecuteSqlInterpolated($"EXEC ChangePrice {multiplier}");
+
+
+    var result = context.Set<OrderSummary>().FromSqlRaw("EXEC OrderSummary @p0", 3);
 }

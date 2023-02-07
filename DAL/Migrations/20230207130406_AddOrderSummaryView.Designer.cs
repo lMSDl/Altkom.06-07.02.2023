@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DAL.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20230207125627_test")]
-    partial class test
+    [Migration("20230207130406_AddOrderSummaryView")]
+    partial class AddOrderSummaryView
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
