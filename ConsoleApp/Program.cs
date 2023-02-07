@@ -44,7 +44,21 @@ using (var context = new Context(contextOptions))
 
     product.Name = "Sałata";
     context.SaveChanges();
+
+    //var multiplier = "-1.1; DROP TABLE Products";
+    var multiplier = "-1.1";
+    //context.Database.ExecuteSqlRaw("EXEC ChangePrice @p0", multiplier);
+    context.Database.ExecuteSqlInterpolated($"EXEC ChangePrice {multiplier}");
+
+
+    var result = context.Set<OrderSummary>().FromSqlRaw("EXEC OrderSummary @p0", 3);
 }
+
+
+
+
+
+
 
 
 static void ChangeTracker(Context context)
