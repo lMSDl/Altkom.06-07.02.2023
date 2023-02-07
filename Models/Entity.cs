@@ -7,7 +7,7 @@ namespace Models
     {
         public int Id { get; set; }
 
-        public bool IsDeleted { get; set; }
+        //public bool IsDeleted { get; set; }
 
 
         public DateTime CeratedDate { get; }

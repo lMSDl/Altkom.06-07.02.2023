@@ -29,6 +29,9 @@ namespace Models
             }
         }
         public float Price { get; set; }
+
+        //ShadowProperty dla referencji
+        //public int OrderId { get; set; }
         public virtual Order? Order { get => _lazyLoader?.Load(this, ref order) ?? order; set => order = value; }
 
         //Odpowiednik IsRowVersion z konfiguracji

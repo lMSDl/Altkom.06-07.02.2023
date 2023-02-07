@@ -37,7 +37,11 @@ for (int i = 0; i < 20; i++)
 
 using (var context = new Context(contextOptions))
 {
-    var product = context.Set<Product>().First();
+    //odczyt wartości ShadowProperty
+    var product = context.Set<Product>().Where(x => EF.Property<int>(x, "OrderId") == 2).First();
+    //zapis wartości ShadowProperty
+    context.Entry(product).Property("OrderId").CurrentValue = 3;
+
     product.Name = "Sałata";
     context.SaveChanges();
 }
@@ -320,7 +324,9 @@ static void QueryFilter(DbContextOptions<Context> contextOptions)
     {
         var product = context.Set<Product>().First();
 
-        product.IsDeleted = true;
+        //product.IsDeleted = true;
+        context.Entry(product).Property<bool>("IsDeleted").CurrentValue = true;
+
 
         context.SaveChanges();
 
