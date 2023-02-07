@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Models;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,11 @@ namespace DAL.Configurations
             builder.Property(x => x.DateTime).IsConcurrencyToken();
 
             builder.Property(x => x.Number).HasDefaultValueSql("NEXT VALUE FOR sequences.OrderNumber");
-        }
+
+            builder.Property(x => x.Type)/*.HasConversion(x => x.ToString(),
+                                                        x => Enum.Parse<OrderType>(x));*/
+                                        //.HasConversion<string>();
+                                        .HasConversion(new EnumToStringConverter<OrderType>());
+        }                       
     }
 }

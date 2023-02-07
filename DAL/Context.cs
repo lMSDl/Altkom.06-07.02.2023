@@ -1,4 +1,5 @@
 ﻿using DAL.Configurations;
+using DAL.Converters;
 using Microsoft.EntityFrameworkCore;
 using Models;
 using Pluralize.NET.Core;
@@ -76,6 +77,8 @@ namespace DAL
                 .ForEach(x => {
                     x.IsNullable = true;
                     x.SetColumnName("s_" + x.GetColumnBaseName());
+                    if(x.PropertyInfo.CanWrite)
+                        x.SetValueConverter(new StringConverter());
                 });
 
 

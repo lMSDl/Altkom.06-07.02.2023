@@ -24,10 +24,10 @@ using (var context = new Context(contextOptions))
 for (int i = 0; i < 20; i++)
 {
 
-using (var context = new Context(contextOptions))
-{
+    using (var context = new Context(contextOptions))
+    {
 
-    var order = new Order();
+    var order = new Order() { Type = (OrderType)(i%3)};
     var product = new Product() { Name = "Kapusta " + i };
     order.Products.Add(product);
     context.Add(order);

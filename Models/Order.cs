@@ -21,6 +21,9 @@ namespace Models
 
         public int Number { get;  }
 
+
+        public OrderType Type { get; set; }
+
         public virtual ObservableCollection<Product> Products { get; set; } = new ObservableCollection<Product>();
     }
 }
