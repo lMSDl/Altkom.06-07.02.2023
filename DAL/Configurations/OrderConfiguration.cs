@@ -15,6 +15,8 @@ namespace DAL.Configurations
         {
             base.Configure(builder);
             builder.Property(x => x.DateTime).IsConcurrencyToken();
+
+            builder.Property(x => x.Number).HasDefaultValueSql("NEXT VALUE FOR sequences.OrderNumber");
         }
     }
 }

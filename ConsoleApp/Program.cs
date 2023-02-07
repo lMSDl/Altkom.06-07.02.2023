@@ -21,14 +21,18 @@ using (var context = new Context(contextOptions))
     context.Database.Migrate();
 }
 
+for (int i = 0; i < 20; i++)
+{
+
 using (var context = new Context(contextOptions))
 {
 
     var order = new Order();
-    var product = new Product() { Name = "Kapusta" };
+    var product = new Product() { Name = "Kapusta " + i };
     order.Products.Add(product);
     context.Add(order);
     context.SaveChanges();
+    }
 }
 
 using (var context = new Context(contextOptions))

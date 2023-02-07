@@ -19,6 +19,8 @@ namespace Models
             }
         }
 
+        public int Number { get;  }
+
         public virtual ObservableCollection<Product> Products { get; set; } = new ObservableCollection<Product>();
     }
 }

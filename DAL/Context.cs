@@ -77,6 +77,14 @@ namespace DAL
                     x.IsNullable = true;
                     x.SetColumnName("s_" + x.GetColumnBaseName());
                 });
+
+
+            modelBuilder.HasSequence<int>("OrderNumber", "sequences")
+                        .StartsAt(100)
+                        .HasMax(999)
+                        .HasMin(0)
+                        .IncrementsBy(333)
+                        .IsCyclic();
         }
 
 
